@@ -47,7 +47,7 @@ at each splitting node. Sum of squared errors is used as metric for node splitti
 \examples{
 library(LGDtoolkit)
 data(lgd.ds.c)
-it <- interaction.transformer(db = lgd.ds.c,
+it <- LGDtoolkit::interaction.transformer(db = lgd.ds.c,
 		              rf = c("rf_01", "rf_03"), 
                              target = "lgd",
                              min.pct.obs = 0.05,

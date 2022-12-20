@@ -57,7 +57,7 @@ num.rf.l <- num.rf[i]
 lgd.ds.c[, num.rf.l] <- sts.bin(x = lgd.ds.c[, num.rf.l], y = lgd.ds.c[, "lgd"])[[2]]	
 }
 str(lgd.ds.c)
-res <- stepFWD(start.model = lgd ~ 1, 
+res <- LGDtoolkit::stepFWD(start.model = lgd ~ 1, 
 	   p.value = 0.05, 
 	   db = lgd.ds.c)
 names(res)

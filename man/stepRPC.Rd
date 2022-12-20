@@ -70,7 +70,7 @@ rf.pg <- data.frame(rf = names(lgd.ds.c)[!names(lgd.ds.c)\%in\%"lgd"],
 		  group = sample(1:5, ncol(lgd.ds.c) - 1, rep = TRUE))
 rf.pg <- rf.pg[order(rf.pg$group, rf.pg$r), ]
 rf.pg
-res <- stepRPC(start.model = lgd ~ 1, 
+res <- LGDtoolkit::stepRPC(start.model = lgd ~ 1, 
 	   risk.profile = rf.pg, 
 	   p.value = 0.05, 
 	   db = lgd.ds.c)

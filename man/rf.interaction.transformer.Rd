@@ -57,7 +57,7 @@ at each splitting node. Sum of squared errors index is used as metric for node s
 \examples{
 library(LGDtoolkit)
 data(lgd.ds.c)
-rf.it <- rf.interaction.transformer(db = lgd.ds.c, 
+rf.it <- LGDtoolkit::rf.interaction.transformer(db = lgd.ds.c, 
 		     rf = names(lgd.ds.c)[!names(lgd.ds.c)\%in\%"lgd"], 
 		     target = "lgd",
 		     num.rf = NA, 
