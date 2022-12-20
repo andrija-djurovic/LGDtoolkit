@@ -14,11 +14,11 @@
 #'library(LGDtoolkit)
 #'data(lgd.ds.c)
 #'#random k-folds
-#'kf.r <- kfold.idx(target = lgd.ds.c$lgd, k = 5, type = "random", seed = 2211)
+#'kf.r <- LGDtoolkit::kfold.idx(target = lgd.ds.c$lgd, k = 5, type = "random", seed = 2211)
 #'sapply(kf.r, function(x) c(mean(lgd.ds.c$lgd[x[[1]]]), mean(lgd.ds.c$lgd[x[[2]]])))
 #'sapply(kf.r, function(x) length(x[[2]]))
 #'#stratified k-folds
-#'kf.s <- kfold.idx(target = lgd.ds.c$lgd, k = 5, type = "stratified", num.strata = 10, seed = 2211)
+#'kf.s <- LGDtoolkit::kfold.idx(target = lgd.ds.c$lgd, k = 5, type = "stratified", num.strata = 10, seed = 2211)
 #'sapply(kf.s, function(x) c(mean(lgd.ds.c$lgd[x[[1]]]), mean(lgd.ds.c$lgd[x[[2]]])))
 #'sapply(kf.s, function(x) length(x[[2]]))
 #'@importFrom stats formula

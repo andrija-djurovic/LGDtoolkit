@@ -34,7 +34,7 @@
 #'blocks <- data.frame(rf = names(lgd.ds.c)[!names(lgd.ds.c)%in%"lgd"], 
 #'			   block = sample(1:3, ncol(lgd.ds.c) - 1, rep = TRUE))
 #'blocks <- blocks[order(blocks$block, blocks$rf), ]
-#'res <- embedded.blocks(method = "stepRPC", 
+#'res <- LGDtoolkit::embedded.blocks(method = "stepRPC", 
 #'			     target = "lgd",
 #'			     db = lgd.ds.c, 
 #'			     blocks = blocks,

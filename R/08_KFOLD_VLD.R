@@ -26,7 +26,7 @@
 #'reg.mod <- lm(lgd ~ ., data = lgd.ds.c[, c(num.rf, "lgd")])
 #'summary(reg.mod)$coefficients
 #'#perform k-fold validation
-#'kfold.vld(model = reg.mod, k = 10, seed = 1984)
+#'LGDtoolkit::kfold.vld(model = reg.mod, k = 10, seed = 1984)
 #'@import monobin
 #'@importFrom stats formula
 #'@export
