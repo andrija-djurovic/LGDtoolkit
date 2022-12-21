@@ -9,6 +9,9 @@
 #'@param db Modeling data with risk factors and target variable. 
 #'@param blocks Data frame with defined risk factor groups. It has to contain the following columns: \code{rf} and 
 #'		    \code{block}.
+#'@param reg.type Regression type. Available options are: \code{"ols"} for OLS regression and \code{"frac.logit"} for 
+#'                fractional logistic regression. Default is \code{"ols"}. For \code{"frac.logit"} option, target has to have
+#'                all values between 0 and 1.
 #'@param p.value Significance level of p-value for the estimated coefficient. For numerical risk factors this value is
 #'		     is directly compared to p-value of the estimated coefficient, while for categorical
 #'		     multiple Wald test is employed and its p-value is used for comparison with selected threshold (\code{p.value}).
@@ -34,9 +37,10 @@
 #'blocks <- data.frame(rf = names(lgd.ds.c)[!names(lgd.ds.c)%in%"lgd"], 
 #'			   block = sample(1:3, ncol(lgd.ds.c) - 1, rep = TRUE))
 #'blocks <- blocks[order(blocks$block, blocks$rf), ]
-#'res <- LGDtoolkit::staged.blocks(method = "stepFWD", 
+#'res <- staged.blocks(method = "stepFWD", 
 #'			   target = "lgd",
-#'			   db = lgd.ds.c, 
+#'			   db = lgd.ds.c,
+#'			   reg.type = "ols", 
 #'			   blocks = blocks,
 #'			   p.value = 0.05)
 #'names(res)
@@ -48,7 +52,7 @@
 #'@import monobin
 #'@importFrom stats as.formula coef vcov
 #'@export
-staged.blocks <- function(method, target, db, blocks, p.value = 0.05) {
+staged.blocks <- function(method, target, db, blocks, reg.type = "ols", p.value = 0.05) {
 	method.opt <- c("stepFWD", "stepRPC")
 	if	(!method%in%method.opt) {
 		stop(paste0("method argument has to be one of: ", paste0(method.opt, collapse = ', '), "."))
@@ -69,19 +73,21 @@ staged.blocks <- function(method, target, db, blocks, p.value = 0.05) {
 
 	start.model <- as.formula(paste0(target, " ~ 1"))
 	if	(method%in%"stepFWD") {
-		eval.exp <- "stepFWD(start.model = start.model, 
-					   p.value = p.value, 
-					   db = db[, c(target, rf.b)],
-					   check.start.model = TRUE, 
-					   offset.vals = offset.vals)"
+		eval.exp <- "LGDtoolkit::stepFWD(start.model = start.model, 
+							   p.value = p.value, 
+							   db = db[, c(target, rf.b)],
+							   reg.type = reg.type, 
+							   check.start.model = TRUE, 
+							   offset.vals = offset.vals)"
 		}
 	if	(method%in%"stepRPC") {
-		eval.exp <- "stepRPC(start.model = start.model, 
-					   risk.profile = data.frame(rf = rf.b, group = 1:length(rf.b)),
-					   p.value = p.value, 
-					   check.start.model = TRUE,
-					   db = db[, c(target, rf.b)],
-					   offset.vals = offset.vals)"
+		eval.exp <- "LGDtoolkit::stepRPC(start.model = start.model, 
+							   risk.profile = data.frame(rf = rf.b, group = 1:length(rf.b)),
+							   p.value = p.value, 
+							   check.start.model = TRUE,
+							   db = db[, c(target, rf.b)],
+							   reg.type = reg.type, 
+							   offset.vals = offset.vals)"
 		}
 	#initiate procedure
 	offset.vals.n <- NULL

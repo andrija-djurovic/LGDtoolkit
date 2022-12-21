@@ -1,4 +1,4 @@
-#' Customized stepwise regression with p-value and trend check
+#' Customized stepwise (OLS & fractional logistic) regression with p-value and trend check
 #'
 #' \code{stepFWD} customized stepwise regression with p-value and trend check. Trend check is performed
 #' comparing observed trend between target and analyzed risk factor and trend of the estimated coefficients within the 
@@ -10,6 +10,9 @@
 #'		     is directly compared to the p-value of the estimated coefficients, while for \code{dummy} coding
 #'		     multiple Wald test is employed and its p-value is used for comparison with selected threshold (\code{p.value}).
 #'@param db Modeling data with risk factors and target variable. Risk factors can be categorized or continuous. 
+#'@param reg.type Regression type. Available options are: \code{"ols"} for OLS regression and \code{"frac.logit"} for 
+#'                fractional logistic regression. Default is \code{"ols"}. For \code{"frac.logit"} option, target has to have
+#'                all values between 0 and 1.
 #'@param check.start.model Logical (\code{TRUE} or \code{FALSE}), if risk factors from the starting model should be 
 #'				   checked for p-value and trend in stepwise process. Default is \code{TRUE}. 
 #'@param offset.vals This can be used to specify an a priori known component to be included in the linear predictor during fitting. 
@@ -37,15 +40,16 @@
 #'str(lgd.ds.c)
 #'res <- LGDtoolkit::stepFWD(start.model = lgd ~ 1, 
 #'		   p.value = 0.05, 
-#'		   db = lgd.ds.c)
+#'		   db = lgd.ds.c,
+#'		   reg.type = "ols")
 #'names(res)
 #'summary(res$model)$coefficients
 #'res$steps
 #'summary(res$model)$r.squared
 #'@import monobin
-#'@importFrom stats as.formula coef vcov
+#'@importFrom stats as.formula coef vcov glm quasibinomial
 #'@export
-stepFWD <- function(start.model, p.value = 0.05, db, check.start.model = TRUE, offset.vals = NULL) {
+stepFWD <- function(start.model, p.value = 0.05, db, reg.type = "ols", check.start.model = TRUE, offset.vals = NULL) {
 	#check arguments
 	if	(!is.data.frame(db)) {
 		stop("db is not a data frame.")
@@ -53,6 +57,10 @@ stepFWD <- function(start.model, p.value = 0.05, db, check.start.model = TRUE, o
 	if	((!is.numeric(p.value) | !length(p.value) == 1) |
 		 !(p.value[1] > 0 & p.value[1] < 1)) {
 		stop("p.value has to be of single numeric value vector greater than 0 and less then 1.")
+		}
+	reg.opt <- c("ols", "frac.logit")
+	if	(!reg.type%in%reg.opt) {
+		stop(paste0("reg.type argument has to be one of: ", paste0(reg.opt, collapse = ', '), "."))
 		}
 	#extract model variables
 	start.vars <- all.vars(start.model)
@@ -69,6 +77,12 @@ stepFWD <- function(start.model, p.value = 0.05, db, check.start.model = TRUE, o
 			Check column names and if formula class is passed to start.model.")
 		}
 	rf.rest <- names(db)[!names(db)%in%c(c(target, rf.start))]
+	#check for reg.type and target
+	if	(reg.type%in%"frac.logit") {
+		if	(!all(db[, target] >= 0 & db[, target] <= 1)) {
+			stop("for reg.type = 'frac.logit' target has to be between 0 and 1.")
+			}
+		}
 	#check supplied risk factors
 	rf.restl <- length(rf.rest)
 	if	(rf.restl == 0) {
@@ -164,7 +178,8 @@ stepFWD <- function(start.model, p.value = 0.05, db, check.start.model = TRUE, o
 	iter <- 1
 	repeat	{
 		print(paste0("Running iteration: ", iter))
-		it.s <- iter.summary(target = target, 
+		it.s <- iter.summary(reg.type = reg.type,
+					   target = target, 
 					   rf.mod = rf.mod, 
 					   rf.start = rf.start, 
 					   tbl.c = tbl.c, 
@@ -185,10 +200,21 @@ stepFWD <- function(start.model, p.value = 0.05, db, check.start.model = TRUE, o
 		}
 	if	(length(rf.mod) == 0) {rf.mod <- "1"}
 	frm.f <- paste0(target, " ~ ", paste0(c(rf.start, rf.mod), collapse = " + "))
-	if	(is.null(offset.vals)) {
-		lr.mod <- lm(formula = as.formula(frm.f), data = db)
+	if	(reg.type%in%"ols") {
+		if	(is.null(offset.vals)) {
+			lr.mod <- lm(formula = as.formula(frm.f), data = db)
+			} else {
+			lr.mod <- lm(formula = as.formula(frm.f), data = db, offset = offset.vals)
+			}
 		} else {
-		lr.mod <- lm(formula = as.formula(frm.f), data = db, offset = offset.vals)
+		if	(is.null(offset.vals)) {
+			lr.mod <- glm(formula = as.formula(frm.f), data = db, family = quasibinomial("logit"))
+			} else {
+			lr.mod <- glm(formula = as.formula(frm.f), data = db, family = quasibinomial("logit"), offset = offset.vals)
+			}		
+		}
+	if	(reg.type%in%"frac.logit") {
+		names(steps)[names(steps)%in%"aic"] <- "deviance"
 		}		
 	res <- list(model = lr.mod, 
 			steps = steps, 
@@ -198,7 +224,7 @@ return(res)
 }
 
 #iteration summary
-iter.summary <- function(target, rf.mod, rf.start, tbl.c, p.value, rf.cat.o, rf.num.o, 
+iter.summary <- function(reg.type, target, rf.mod, rf.start, tbl.c, p.value, rf.cat.o, rf.num.o, 
 				 db, offset.vals, check.start.model) {
 	rf.mod <- c(rf.start, rf.mod) 
 	frm.start <- paste0(target, " ~ ", ifelse(!is.null(rf.mod), 
@@ -210,7 +236,7 @@ iter.summary <- function(target, rf.mod, rf.start, tbl.c, p.value, rf.cat.o, rf.
 		rf.l <- tbl.c[i, "rf"]
 		res$rf[i] <- rf.l
 		frm.check <- paste0(frm.start, " + ", rf.l)
-		ms <- gms(formula = as.formula(frm.check), db = db, offset.vals = offset.vals) 
+		ms <- gms(reg.type = reg.type, formula = as.formula(frm.check), db = db, offset.vals = offset.vals) 
 		lr.mod <- ms[["coef.tbl"]]
 		res$aic[i] <- ms[["aic"]]
 		if	(any(is.na(coef(ms[["model"]])))) {
@@ -253,12 +279,18 @@ find.next <- function(it.s, tbl.c) {
 return(list(rf.next = rf.next, step = rf.next.all, tbl.c = tbl.c))
 }	
 #get model summary
-gms <- function(formula, db, offset.vals) {
-	mod.est <- lm(formula = formula, data = db, offset = offset.vals)
+gms <- function(reg.type, formula, db, offset.vals) {
+	if	(reg.type%in%"ols") {
+		mod.est <- lm(formula = formula, data = db, offset = offset.vals)
+		aic.dev <- extractAIC(mod.est)[2]
+		} else {
+		mod.est <- glm(formula = formula, data = db, family = quasibinomial("logit"), offset = offset.vals)
+		aic.dev <- mod.est$deviance[1]
+		}
 	coef.tbl <- data.frame(summary(mod.est)$coefficients)
 	coef.tbl <- cbind.data.frame(rf = rownames(coef.tbl), coef.tbl)
 	row.names(coef.tbl) <- NULL
-return(list(coef.tbl = coef.tbl, aic = extractAIC(mod.est)[2], model = mod.est))
+return(list(coef.tbl = coef.tbl, aic = aic.dev, model = mod.est))
 }
 #p-value and trend checks
 ptc <- function(model, lr.mod, rf.mod, rf.start, check.start.model, rf.l, rf.type, rf.cat.o, 

@@ -1,8 +1,9 @@
 #' Ensemble blocks regression
 #'
 #' \code{ensemble.blocks} performs blockwise regression where the predictions of each blocks' model are 
-#' integrated into a final model. The final model is estimated in the form of OLS regression without
-#' any check of the estimated coefficients (e.g. statistical significance or sign of the estimated coefficients).
+#' integrated into a final model. The final model is estimated in the form of OLS or fractional
+#' logistic regression regression without any check of the estimated coefficients 
+#' (e.g. statistical significance or sign of the estimated coefficients).
 #'@seealso \code{\link{staged.blocks}}, \code{\link{embedded.blocks}}, \code{\link{stepFWD}} and \code{\link{stepRPC}}.
 #'@param method Regression method applied on each block. 
 #'		    Available methods: \code{"stepFWD"} or \code{"stepRPC"}.
@@ -10,6 +11,9 @@
 #'@param db Modeling data with risk factors and target variable. 
 #'@param blocks Data frame with defined risk factor groups. It has to contain the following columns: \code{rf} and 
 #'		    \code{block}.
+#'@param reg.type Regression type. Available options are: \code{"ols"} for OLS regression and \code{"frac.logit"} for 
+#'                fractional logistic regression. Default is \code{"ols"}. For \code{"frac.logit"} option, target has to have
+#'                all values between 0 and 1.
 #'@param p.value Significance level of p-value for the estimated coefficient. For numerical risk factors this value is
 #'		     is directly compared to p-value of the estimated coefficient, while for categorical
 #'		     multiple Wald test is employed and its p-value is used for comparison with selected threshold (\code{p.value}).
@@ -39,6 +43,7 @@
 #'			     target = "lgd",
 #'			     db = lgd.ds.c, 
 #'			     blocks = blocks,
+#'			     reg.type = "ols", 
 #'			     p.value = 0.05)
 #'names(res)
 #'res$models
@@ -46,7 +51,7 @@
 #'@import monobin
 #'@importFrom stats as.formula coef vcov
 #'@export
-ensemble.blocks <- function(method, target, db, blocks, p.value = 0.05) {
+ensemble.blocks <- function(method, target, db, blocks, reg.type = "ols", p.value = 0.05) {
 	method.opt <- c("stepFWD", "stepRPC")
 	if	(!method%in%method.opt) {
 		stop(paste0("method argument has to be one of: ", paste0(method.opt, collapse = ', '), "."))
@@ -67,17 +72,19 @@ ensemble.blocks <- function(method, target, db, blocks, p.value = 0.05) {
 
 	start.model <- as.formula(paste0(target, " ~ 1"))
 	if	(method%in%"stepFWD") {
-		eval.exp <- "stepFWD(start.model = start.model, 
-					   p.value = p.value, 
-					   check.start.model = TRUE,
-					   db = db[, c(target, rf.b)])"
+		eval.exp <- "LGDtoolkit::stepFWD(start.model = start.model, 
+							   p.value = p.value, 
+							   check.start.model = TRUE,
+							   db = db[, c(target, rf.b)],	
+							   reg.type = reg.type)"
 		}
 	if	(method%in%"stepRPC") {
-		eval.exp <- "stepRPC(start.model = start.model, 
-					   risk.profile = data.frame(rf = rf.b, group = 1:length(rf.b)),
-					   p.value = p.value, 
-					   check.start.model = TRUE,
-					   db = db[, c(target, rf.b)])"
+		eval.exp <- "LGDtoolkit::stepRPC(start.model = start.model, 
+							   risk.profile = data.frame(rf = rf.b, group = 1:length(rf.b)),
+							   p.value = p.value, 
+							   check.start.model = TRUE,
+							   db = db[, c(target, rf.b)],
+							   reg.type = reg.type)"
 		}
 
 	#initiate procedure
@@ -107,8 +114,13 @@ ensemble.blocks <- function(method, target, db, blocks, p.value = 0.05) {
 	#ensemble model
 	print(paste0("-----Ensemble block----"))
 	bp <- names(db.eb)[!names(db.eb)%in%target]
-	eb.frm <- paste0(target, " ~ ", paste(bp, collapse = " + "))	
-	eb.mod <-  lm(formula = as.formula(eb.frm), data = db.eb)
+	eb.frm <- paste0(target, " ~ ", paste(bp, collapse = " + "))
+	if	(reg.type%in%"ols") {
+		eb.mod <-  lm(formula = as.formula(eb.frm), data = db.eb)
+		} else {
+		eb.mod <-  glm(formula = as.formula(eb.frm), data = db.eb, family = quasibinomial("logit"))
+		}	
+
 	models[[bidl + 1]] <- eb.mod
 	names(models)[bidl + 1] <- "ensemble_block"
 	dev.db[[bidl + 1]] <- db.eb

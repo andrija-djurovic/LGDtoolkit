@@ -1,4 +1,4 @@
-#' Stepwise OLS regression based on risk profile concept
+#' Stepwise (OLS & fractional logistic) regression based on risk profile concept
 #'
 #' \code{stepRPC} customized stepwise regression with p-value and trend check which additionally takes into account 
 #' the order of supplied risk factors per group when selects a candidate for the final regression model. Trend check is performed
@@ -16,6 +16,9 @@
 #'		     multiple Wald test is employed and its value is used for comparison with selected threshold (\code{p.value}).
 #'@param db Modeling data with risk factors and target variable. All risk factors (apart from the risk factors from the starting model) 
 #'	    should be categorized and as of character type.
+#'@param reg.type Regression type. Available options are: \code{"ols"} for OLS regression and \code{"frac.logit"} for 
+#'                fractional logistic regression. Default is \code{"ols"}. For \code{"frac.logit"} option, target has to have
+#'                all values between 0 and 1.
 #'@param check.start.model Logical (\code{TRUE} or \code{FALSE}), if risk factors from the starting model should 
 #'				   checked for p-value and trend in stepwise process.
 #'@param offset.vals This can be used to specify an a priori known component to be included in the linear predictor during fitting. 
@@ -31,7 +34,7 @@
 #'library(monobin)
 #'library(LGDtoolkit)
 #'data(lgd.ds.c)
-#'#discretization of numeric risk factors
+#discretization of numeric risk factors
 #'num.rf <- sapply(lgd.ds.c, is.numeric)
 #'num.rf <- names(num.rf)[!names(num.rf)%in%"lgd" & num.rf]
 #'num.rf
@@ -49,14 +52,15 @@
 #'res <- LGDtoolkit::stepRPC(start.model = lgd ~ 1, 
 #'		   risk.profile = rf.pg, 
 #'		   p.value = 0.05, 
-#'		   db = lgd.ds.c)
+#'		   db = lgd.ds.c,
+#'		   reg.type = "ols")
 #'names(res)
 #'summary(res$model)$coefficients
 #'summary(res$model)$r.squared
 #'@import monobin
-#'@importFrom stats as.formula coef vcov
+#'@importFrom stats as.formula coef vcov glm quasibinomial
 #'@export
-stepRPC <- function(start.model, risk.profile, p.value = 0.05, db, check.start.model = TRUE, offset.vals = NULL) {
+stepRPC <- function(start.model, risk.profile, p.value = 0.05, db, reg.type = "ols", check.start.model = TRUE, offset.vals = NULL) {
 	#check arguments
 	if	(!is.data.frame(db)) {
 		stop("db is not a data frame.")
@@ -77,6 +81,10 @@ stepRPC <- function(start.model, risk.profile, p.value = 0.05, db, check.start.m
 		 !(p.value[1] > 0 & p.value[1] < 1)) {
 		stop("p.value has to be of single numeric value vector greater than 0 and less then 1.")
 		}
+	reg.opt <- c("ols", "frac.logit")
+	if	(!reg.type%in%reg.opt) {
+		stop(paste0("reg.type argument has to be one of: ", paste0(reg.opt, collapse = ', '), "."))
+		}
 	if	(!is.logical(check.start.model)) {
 		stop("check.start.model has to be logical (TRUE or FALSE).")
 		}
@@ -95,6 +103,12 @@ stepRPC <- function(start.model, risk.profile, p.value = 0.05, db, check.start.m
 			Check column names and if formula class is passed to start.model.")
 		}
 	rf.rest <- unique(risk.profile$rf)
+	#check for reg.type and target
+	if	(reg.type%in%"frac.logit") {
+		if	(!all(db[, target] >= 0 & db[, target] <= 1)) {
+			stop("for reg.type = 'frac.logit' target has to be between 0 and 1.")
+			}
+		}
 	#check supplied risk factors
 	rf.restl <- length(rf.rest)
 	if	(rf.restl == 0) {
@@ -109,7 +123,6 @@ stepRPC <- function(start.model, risk.profile, p.value = 0.05, db, check.start.m
 	risk.profile$rf <- unname(names.c[risk.profile$rf])
 	#define warning table
 	warn.tbl <- data.frame()
-	
 	#check num of modalities per risk factor
 	num.type <- sapply(db[, rf.rest, drop = FALSE], is.numeric)
 	num.rf <- names(num.type)[num.type]
@@ -194,6 +207,7 @@ stepRPC <- function(start.model, risk.profile, p.value = 0.05, db, check.start.m
 	steps <- vector("list", pgl)
 	for	(i in 1:pgl) {
 		pg.l <- group.summary(db = db, 
+					    reg.type = reg.type, 
 					    target = target, 
 					    rp.tbl = risk.profile, 
 					    g = pg[i], 
@@ -211,10 +225,21 @@ stepRPC <- function(start.model, risk.profile, p.value = 0.05, db, check.start.m
 	steps <- bind_rows(steps)
 	if	(length(rf.mod) == 0) {rf.mod <- "1"}
 	frm.f <- paste0(target, " ~ ", paste0(c(rf.start, rf.mod), collapse = " + "))
-	if	(is.null(offset.vals)) {
-		lr.mod <- lm(formula = as.formula(frm.f), data = db)
+	if	(reg.type%in%"ols") {
+		if	(is.null(offset.vals)) {
+			lr.mod <- lm(formula = as.formula(frm.f), data = db)
+			} else {
+			lr.mod <- lm(formula = as.formula(frm.f), data = db, offset = offset.vals)
+			}
 		} else {
-		lr.mod <- lm(formula = as.formula(frm.f), data = db, offset = offset.vals)
+		if	(is.null(offset.vals)) {
+			lr.mod <- glm(formula = as.formula(frm.f), data = db, family = quasibinomial("logit"))
+			} else {
+			lr.mod <- glm(formula = as.formula(frm.f), data = db, family = quasibinomial("logit"), offset = offset.vals)
+			}		
+		}
+	if	(reg.type%in%"frac.logit") {
+		names(steps)[names(steps)%in%"aic"] <- "deviance"
 		}
 	res <- list(model = lr.mod, 
 			steps = steps, 
@@ -224,7 +249,7 @@ return(res)
 }
 
 #group summary
-group.summary <- function(db, target, rp.tbl, g, rf.mod, rf.start, rf.rest, p.value,  rf.cat.o,  rf.num.o, 
+group.summary <- function(db, reg.type, target, rp.tbl, g, rf.mod, rf.start, rf.rest, p.value,  rf.cat.o,  rf.num.o, 
 				  check.start.model, offset.vals) {
 	rf.g <- rp.tbl$rf[rp.tbl$group%in%g]
 	rf.g <- rf.g[rf.g%in%rf.rest]	
@@ -238,7 +263,8 @@ group.summary <- function(db, target, rp.tbl, g, rf.mod, rf.start, rf.rest, p.va
 	iter <- 1
 	repeat	{
 		print(paste0("Running iteration: ", iter, " for group: ", g))
-		it.s <- iter.summary(target = target, 
+		it.s <- iter.summary(reg.type = reg.type, 
+					   target = target, 
 					   rf.mod = rf.mod, 
 					   rf.start = rf.start, 
 					   check.start.model = check.start.model,
