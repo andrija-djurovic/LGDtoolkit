@@ -4,7 +4,7 @@
 \alias{ensemble.blocks}
 \title{Ensemble blocks regression}
 \usage{
-ensemble.blocks(method, target, db, blocks, p.value = 0.05)
+ensemble.blocks(method, target, db, blocks, reg.type = "ols", p.value = 0.05)
 }
 \arguments{
 \item{method}{Regression method applied on each block.
@@ -16,6 +16,10 @@ Available methods: \code{"stepFWD"} or \code{"stepRPC"}.}
 
 \item{blocks}{Data frame with defined risk factor groups. It has to contain the following columns: \code{rf} and
 \code{block}.}
+
+\item{reg.type}{Regression type. Available options are: \code{"ols"} for OLS regression and \code{"frac.logit"} for
+fractional logistic regression. Default is \code{"ols"}. For \code{"frac.logit"} option, target has to have
+all values between 0 and 1.}
 
 \item{p.value}{Significance level of p-value for the estimated coefficient. For numerical risk factors this value is
 is directly compared to p-value of the estimated coefficient, while for categorical
@@ -29,8 +33,9 @@ The third object (\code{dev.db}), returns the list of block's model development 
 }
 \description{
 \code{ensemble.blocks} performs blockwise regression where the predictions of each blocks' model are
-integrated into a final model. The final model is estimated in the form of OLS regression without
-any check of the estimated coefficients (e.g. statistical significance or sign of the estimated coefficients).
+integrated into a final model. The final model is estimated in the form of OLS or fractional
+logistic regression regression without any check of the estimated coefficients
+(e.g. statistical significance or sign of the estimated coefficients).
 }
 \examples{
 library(monobin)
@@ -54,6 +59,7 @@ res <- LGDtoolkit::ensemble.blocks(method = "stepFWD",
 		     target = "lgd",
 		     db = lgd.ds.c, 
 		     blocks = blocks,
+		     reg.type = "ols", 
 		     p.value = 0.05)
 names(res)
 res$models

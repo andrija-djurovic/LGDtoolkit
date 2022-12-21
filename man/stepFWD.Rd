@@ -2,12 +2,13 @@
 % Please edit documentation in R/03_STEP_FWD.R
 \name{stepFWD}
 \alias{stepFWD}
-\title{Customized stepwise regression with p-value and trend check}
+\title{Customized stepwise (OLS & fractional logistic) regression with p-value and trend check}
 \usage{
 stepFWD(
   start.model,
   p.value = 0.05,
   db,
+  reg.type = "ols",
   check.start.model = TRUE,
   offset.vals = NULL
 )
@@ -21,6 +22,10 @@ is directly compared to the p-value of the estimated coefficients, while for \co
 multiple Wald test is employed and its p-value is used for comparison with selected threshold (\code{p.value}).}
 
 \item{db}{Modeling data with risk factors and target variable. Risk factors can be categorized or continuous.}
+
+\item{reg.type}{Regression type. Available options are: \code{"ols"} for OLS regression and \code{"frac.logit"} for
+fractional logistic regression. Default is \code{"ols"}. For \code{"frac.logit"} option, target has to have
+all values between 0 and 1.}
 
 \item{check.start.model}{Logical (\code{TRUE} or \code{FALSE}), if risk factors from the starting model should be
 checked for p-value and trend in stepwise process. Default is \code{TRUE}.}
@@ -59,7 +64,8 @@ lgd.ds.c[, num.rf.l] <- sts.bin(x = lgd.ds.c[, num.rf.l], y = lgd.ds.c[, "lgd"])
 str(lgd.ds.c)
 res <- LGDtoolkit::stepFWD(start.model = lgd ~ 1, 
 	   p.value = 0.05, 
-	   db = lgd.ds.c)
+	   db = lgd.ds.c,
+	   reg.type = "ols")
 names(res)
 summary(res$model)$coefficients
 res$steps

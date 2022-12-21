@@ -4,7 +4,7 @@
 \alias{embedded.blocks}
 \title{Embedded blocks regression}
 \usage{
-embedded.blocks(method, target, db, blocks, p.value = 0.05)
+embedded.blocks(method, target, db, blocks, reg.type = "ols", p.value = 0.05)
 }
 \arguments{
 \item{method}{Regression method applied on each block.
@@ -16,6 +16,10 @@ Available methods: \code{"stepFWD"} or \code{"stepRPC"}.}
 
 \item{blocks}{Data frame with defined risk factor groups. It has to contain the following columns: \code{rf} and
 \code{block}.}
+
+\item{reg.type}{Regression type. Available options are: \code{"ols"} for OLS regression and \code{"frac.logit"} for
+fractional logistic regression. Default is \code{"ols"}. For \code{"frac.logit"} option, target has to have
+all values between 0 and 1.}
 
 \item{p.value}{Significance level of p-value for the estimated coefficient. For numerical risk factors this value is
 is directly compared to p-value of the estimated coefficient, while for categorical
@@ -49,10 +53,12 @@ set.seed(321)
 blocks <- data.frame(rf = names(lgd.ds.c)[!names(lgd.ds.c)\%in\%"lgd"], 
 		   block = sample(1:3, ncol(lgd.ds.c) - 1, rep = TRUE))
 blocks <- blocks[order(blocks$block, blocks$rf), ]
+lgd.ds.c$lgd[lgd.ds.c$lgd > 1] <- 1
 res <- LGDtoolkit::embedded.blocks(method = "stepRPC", 
 		     target = "lgd",
 		     db = lgd.ds.c, 
 		     blocks = blocks,
+		     reg.type = "frac.logit", 
 		     p.value = 0.05)
 names(res)
 res$models

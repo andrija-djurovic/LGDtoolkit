@@ -2,13 +2,14 @@
 % Please edit documentation in R/04_STEP_RPC.R
 \name{stepRPC}
 \alias{stepRPC}
-\title{Stepwise OLS regression based on risk profile concept}
+\title{Stepwise (OLS & fractional logistic) regression based on risk profile concept}
 \usage{
 stepRPC(
   start.model,
   risk.profile,
   p.value = 0.05,
   db,
+  reg.type = "ols",
   check.start.model = TRUE,
   offset.vals = NULL
 )
@@ -28,6 +29,10 @@ multiple Wald test is employed and its value is used for comparison with selecte
 
 \item{db}{Modeling data with risk factors and target variable. All risk factors (apart from the risk factors from the starting model)
 should be categorized and as of character type.}
+
+\item{reg.type}{Regression type. Available options are: \code{"ols"} for OLS regression and \code{"frac.logit"} for
+fractional logistic regression. Default is \code{"ols"}. For \code{"frac.logit"} option, target has to have
+all values between 0 and 1.}
 
 \item{check.start.model}{Logical (\code{TRUE} or \code{FALSE}), if risk factors from the starting model should
 checked for p-value and trend in stepwise process.}
@@ -55,7 +60,6 @@ renaming (replacement of special characters) is possible to happen. For details,
 library(monobin)
 library(LGDtoolkit)
 data(lgd.ds.c)
-#discretization of numeric risk factors
 num.rf <- sapply(lgd.ds.c, is.numeric)
 num.rf <- names(num.rf)[!names(num.rf)\%in\%"lgd" & num.rf]
 num.rf
@@ -73,7 +77,8 @@ rf.pg
 res <- LGDtoolkit::stepRPC(start.model = lgd ~ 1, 
 	   risk.profile = rf.pg, 
 	   p.value = 0.05, 
-	   db = lgd.ds.c)
+	   db = lgd.ds.c,
+	   reg.type = "ols")
 names(res)
 summary(res$model)$coefficients
 summary(res$model)$r.squared
