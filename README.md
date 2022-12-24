@@ -9,10 +9,10 @@ utmost importance for analysts. The main goal of this package is to
 cover the most common steps of LGD model development. As additional
 contribution we attempted to add some functionalities which at the
 moment of the package development were not presented in `R` package
-ecosystem in area of credit risk modeling. In the curent package
+ecosystem in area of credit risk modeling. In the current package
 version, available functionalities mainly refer to risk factor
 engineering and multivariate analysis. With a new versions, package will
-be extened with validation methods and survival analysis for LGD
+be extended with validation methods and survival analysis for LGD
 modeling. </br>
 
 The following case study shows the usage of `LGDtoolkit` package. The
@@ -256,10 +256,10 @@ str(lgd.ds.c)
     ##  $ rf_16: chr  "02 [0.0634,34.6935)" "03 [34.6935,43.6851)" "02 [0.0634,34.6935)" "03 [34.6935,43.6851)" ...
     ##  $ rf_18: chr  "03 [-0.0208,0.0506)" "03 [-0.0208,0.0506)" "03 [-0.0208,0.0506)" "03 [-0.0208,0.0506)" ...
 
-After performend binning step, modelers usually perform bivariate
+After completing binning step, modelers usually perform bivariate
 analysis and start examination of discriminatory power of risk factors
 in relation with target variable. Probably the most common metric used
-for this purpose is coefficient determination (aks R squared) and it
+for this purpose is coefficient determination (R squared) and it
 usually used for further risk factor filtering based. In order to
 calculate R squared we will use function `r.squared` from `LGDtoolkit`
 package.
