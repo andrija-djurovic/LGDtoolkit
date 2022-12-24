@@ -1,8 +1,10 @@
 #' K-fold model cross-validation
 #'
 #' \code{kfold.vld} performs k-fold model cross-validation. 
-#' The main goal of this procedure is to generate main model performance metrics such as absolute mean
-#' square error, root mean square error or R-squared based on resampling method.
+#'The main goal of this procedure is to generate main model performance metrics such as absolute mean
+#'square error, root mean square error or R-squared based on resampling method. Note that functions' argument
+#'model accepts \code{"lm"} and \code{"glm"} class but for \code{"glm"} only \code{"quasibinomial("logit")"}
+#'family will be considered.
 #'@param model Model in use, an object of class inheriting from \code{"lm"}
 #'@param k Number of folds. If \code{k} is equal or greater than the number of observations of 
 #'	     modeling data frame, then validation procedure is equivalent to leave one out cross-validation (LOOCV)
@@ -23,15 +25,20 @@
 #'	}
 #'str(lgd.ds.c)
 #'#run linear regression model
-#'reg.mod <- lm(lgd ~ ., data = lgd.ds.c[, c(num.rf, "lgd")])
-#'summary(reg.mod)$coefficients
+#'reg.mod.1 <- lm(lgd ~ ., data = lgd.ds.c[, c(num.rf, "lgd")])
+#'summary(reg.mod.1)$coefficients
 #'#perform k-fold validation
-#'LGDtoolkit::kfold.vld(model = reg.mod, k = 10, seed = 1984)
+#'LGDtoolkit::kfold.vld(model = reg.mod.1 , k = 10, seed = 1984)
+#'#run fractional logistic regression model
+#'lgd.ds.c$lgd[lgd.ds.c$lgd > 1] <- 1
+#'reg.mod.2 <- glm(lgd ~ ., family = quasibinomial("logit"), data = lgd.ds.c[, c(num.rf, "lgd")])
+#'summary(reg.mod.2)$coefficients
+#'LGDtoolkit::kfold.vld(model = reg.mod.2 , k = 10, seed = 1984)
 #'@import monobin
 #'@importFrom stats formula
 #'@export
 kfold.vld <- function(model, k = 10, seed = 1984) {
-	if	(!"lm"%in%class(model)) {
+	if	(!("lm"%in%class(model) | "glm"%in%class(model))) {
 		stop("model has to be of lm class.")
 		}
 	frm <- formula(model$terms)
@@ -52,12 +59,17 @@ kfold.vld <- function(model, k = 10, seed = 1984) {
 		}
 	k.seq <- 1:k
 	res <- vector("list", k)
+	if	("glm"%in%class(model)) {
+		reg.exp <- "glm(formula = frm, family = quasibinomial('logit'), data = db.est)"
+		} else {
+		reg.exp <- "lm(formula = frm, data = db.est)"
+		}
 	for	(i in 1:k) {
 		k.l <- k.seq[i]
 		db.est <- db[!cv.folds%in%k.l, ]	
 		db.vld <- db[cv.folds%in%k.l, ]
 		vld.no <- nrow(db.vld)
-		lrm <- lm(formula = frm, data = db.est)
+		lrm <- eval(parse(text = reg.exp))
 		lrm.p <- unname(predict(lrm, type = "response", newdata = db.vld))
 		rsq.l <- cor(lrm.p, db.vld[, trg], use = "complete.obs")^2
 		res[[i]] <- data.frame(k = k.l, 
