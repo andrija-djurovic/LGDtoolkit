@@ -23,7 +23,9 @@ The second object (\code{summary}), is the data frame of iterations averages of 
 \description{
 \code{kfold.vld} performs k-fold model cross-validation.
 The main goal of this procedure is to generate main model performance metrics such as absolute mean
-square error, root mean square error or R-squared based on resampling method.
+square error, root mean square error or R-squared based on resampling method. Note that functions' argument
+model accepts \code{"lm"} and \code{"glm"} class but for \code{"glm"} only \code{"quasibinomial("logit")"}
+family will be considered.
 }
 \examples{
 library(monobin)
@@ -37,8 +39,13 @@ lgd.ds.c[, num.rf.l] <- sts.bin(x = lgd.ds.c[, num.rf.l], y = lgd.ds.c[, "lgd"])
 }
 str(lgd.ds.c)
 #run linear regression model
-reg.mod <- lm(lgd ~ ., data = lgd.ds.c[, c(num.rf, "lgd")])
-summary(reg.mod)$coefficients
+reg.mod.1 <- lm(lgd ~ ., data = lgd.ds.c[, c(num.rf, "lgd")])
+summary(reg.mod.1)$coefficients
 #perform k-fold validation
-LGDtoolkit::kfold.vld(model = reg.mod, k = 10, seed = 1984)
+LGDtoolkit::kfold.vld(model = reg.mod.1 , k = 10, seed = 1984)
+#run fractional logistic regression model
+lgd.ds.c$lgd[lgd.ds.c$lgd > 1] <- 1
+reg.mod.2 <- glm(lgd ~ ., family = quasibinomial("logit"), data = lgd.ds.c[, c(num.rf, "lgd")])
+summary(reg.mod.2)$coefficients
+LGDtoolkit::kfold.vld(model = reg.mod.2 , k = 10, seed = 1984)
 }
