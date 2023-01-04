@@ -260,7 +260,7 @@ After completing binning step, modelers usually perform bivariate
 analysis and start examination of discriminatory power of risk factors
 in relation with target variable. Probably the most common metric used
 for this purpose is coefficient determination (R squared) and it usually
-used for further risk factor filtering based. In order to calculate R
+used for further risk factor filtering. In order to calculate R
 squared we will use function `r.squared` from `LGDtoolkit` package.
 
 ``` r
@@ -287,7 +287,7 @@ bivariate analysis. Thus we move on to multivariate analysis. For this
 purpose `LGDtoolkit` package is equipped with two customized stepwise
 algorithms `stepFWD` and `stepRPC`. Both functions support standard OLS
 regression as well as fractional logistic regression. Note that latter
-regression type required target variable to be between 0 and 1. For the
+regression type requires target variable to be between 0 and 1. For the
 following example we will use `stepFWD` with OLS estimation method.
 Analysts are also encouraged to check the help page of both function as
 well as other customized blockwise regression
