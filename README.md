@@ -231,6 +231,10 @@ discretized, so we will proceed next with that step. For the purpose of
 binning the numeric risk factors, we will use one of the functions
 (`sts.bin`) from the `monobin` package. Details about this package can
 be found [here](https://CRAN.R-project.org/package=monobin).
+Usually before this step modelers split data set on training and testing and 
+perform binning (and other model development steps) only on training data set.
+For the sake of simplicity, for this case study we will skip this part but modelers
+should be aware of importance of data set splitting step.
 
 ``` r
 #define target variable and exclude it from the binning process
