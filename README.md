@@ -360,7 +360,7 @@ summary(mv.res$model)$r.squared
 
     ## [1] 0.236374
 
-> :warning: Be aware that usually in practise greater attention is paid
+> :warning: Be aware that usually in practice greater attention is paid
 > on dealing with special cases and missing values before running
 > multivariate analysis. Sometimes they are merged with one of the
 > modalities from so-called complete cases. In above example this
