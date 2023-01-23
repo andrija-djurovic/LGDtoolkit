@@ -11,7 +11,7 @@ Description: The goal of this package is to cover the most common steps in Loss 
              The main procedures available are those that refer to bivariate and multivariate analysis. In particular two statistical methods for 
              multivariate analysis are currently implemented – OLS regression and fractional logistic regression.
              Both methods are also available within different blockwise model designs and both have customized stepwise algorithms. 
-             Descriptions of these customized designs are available in Siddiqi (2016) <doi:10.1002/9781119282396> and 
+             Descriptions of these customized designs are available in Siddiqi (2016) <doi:10.1002/9781119282396.ch10> and 
              Anderson, R.A. (2021) <doi:10.1093/oso/9780192844194.001.0001>. 
              Although they are explained for PD model, the same designs are applicable for LGD model with different underlying regression methods 
              (OLS and fractional logistic regression). To cover other important steps for LGD model development, it is recommended to use 
