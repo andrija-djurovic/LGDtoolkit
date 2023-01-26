@@ -33,6 +33,8 @@
 #'num.rf <- sapply(lgd.ds.c, is.numeric)
 #'num.rf <- names(num.rf)[!names(num.rf)%in%"lgd" & num.rf]
 #'num.rf
+#'#select subset of numerical risk factors
+#'num.rf <- num.rf[1:10]
 #'for	(i in 1:length(num.rf)) {
 #'	num.rf.l <- num.rf[i]
 #'	lgd.ds.c[, num.rf.l] <- sts.bin(x = lgd.ds.c[, num.rf.l], y = lgd.ds.c[, "lgd"])[[2]]	
@@ -40,7 +42,7 @@
 #'str(lgd.ds.c)
 #'res <- LGDtoolkit::stepFWD(start.model = lgd ~ 1, 
 #'		   p.value = 0.05, 
-#'		   db = lgd.ds.c,
+#'		   db = lgd.ds.c[, c(num.rf, "lgd")],
 #'		   reg.type = "ols")
 #'names(res)
 #'summary(res$model)$coefficients
