@@ -36,19 +36,9 @@ The third object (\code{dev.db}), returns the list of block's model development 
 offset for the model of the following block.
 }
 \examples{
-library(monobin)
 library(LGDtoolkit)
 data(lgd.ds.c)
-#stepwise with discretized risk factors
-#same procedure can be run on continuous risk factors and mixed risk factor types
-num.rf <- sapply(lgd.ds.c, is.numeric)
-num.rf <- names(num.rf)[!names(num.rf)\%in\%"lgd" & num.rf]
-num.rf
-for	(i in 1:length(num.rf)) {
-num.rf.l <- num.rf[i]
-lgd.ds.c[, num.rf.l] <- sts.bin(x = lgd.ds.c[, num.rf.l], y = lgd.ds.c[, "lgd"])[[2]]	
-}
-str(lgd.ds.c)
+#stepwise with continuous risk factors
 set.seed(123)
 blocks <- data.frame(rf = names(lgd.ds.c)[!names(lgd.ds.c)\%in\%"lgd"], 
 		   block = sample(1:3, ncol(lgd.ds.c) - 1, rep = TRUE))
