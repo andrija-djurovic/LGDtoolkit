@@ -37,7 +37,7 @@
 #'blocks <- data.frame(rf = names(lgd.ds.c)[!names(lgd.ds.c)%in%"lgd"], 
 #'			   block = sample(1:3, ncol(lgd.ds.c) - 1, rep = TRUE))
 #'blocks <- blocks[order(blocks$block, blocks$rf), ]
-#'res <- staged.blocks(method = "stepFWD", 
+#'res <- LGDtoolkit::staged.blocks(method = "stepFWD", 
 #'			   target = "lgd",
 #'			   db = lgd.ds.c,
 #'			   reg.type = "ols", 
