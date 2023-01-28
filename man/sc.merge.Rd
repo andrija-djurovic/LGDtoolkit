@@ -22,6 +22,10 @@ performed forward based on alphabetic order of risk factor modalities. On the ot
 if \code{"y.avg"} is selected, then bins merging will be performed forward based on increasing order of
 mean of target variable per modality.}
 }
+\value{
+The command \code{sc.merge} generates a list of two objects. The first object, data frame \code{summary.tbl}
+presents a summary table of final binning, while \code{x.trans} is a vector of recoded values.
+}
 \description{
 \code{sc.merge} performs procedure of merging special case bins with one from complete cases.
 This procedure can be used not only for LGD model development, but also for PD and EAD, i.e. for
