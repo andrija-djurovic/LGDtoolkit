@@ -179,7 +179,7 @@ stepFWD <- function(start.model, p.value = 0.05, db, reg.type = "ols", check.sta
 	steps <- data.frame()
 	iter <- 1
 	repeat	{
-		print(paste0("Running iteration: ", iter))
+		message(paste0("Running iteration: ", iter))
 		it.s <- iter.summary(reg.type = reg.type,
 					   target = target, 
 					   rf.mod = rf.mod, 

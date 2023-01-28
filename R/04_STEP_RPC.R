@@ -262,7 +262,7 @@ group.summary <- function(db, reg.type, target, rp.tbl, g, rf.mod, rf.start, rf.
 	tbl.c <- data.frame(rf = rf.g, checked = FALSE)
 	iter <- 1
 	repeat	{
-		print(paste0("Running iteration: ", iter, " for group: ", g))
+		message(paste0("Running iteration: ", iter, " for group: ", g))
 		it.s <- iter.summary(reg.type = reg.type, 
 					   target = target, 
 					   rf.mod = rf.mod, 

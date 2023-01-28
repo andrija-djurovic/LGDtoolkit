@@ -95,7 +95,7 @@ embedded.blocks <- function(method, target, db, blocks, reg.type = "ols", p.valu
 	models <- vector("list", bidl)
 	dev.db <- vector("list", bidl)
 	for	(i in 1:bidl) {
-		print(paste0("--------Block: ", i, "-------"))
+		message(paste0("--------Block: ", i, "-------"))
 		bid.l <- bid[i]
 		rf.b <- blocks$rf[blocks$block%in%bid.l]
 		res.l <- eval(parse(text = eval.exp))

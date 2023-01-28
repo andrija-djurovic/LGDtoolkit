@@ -13,6 +13,8 @@
 #'		     performed forward based on alphabetic order of risk factor modalities. On the other hand,
 #'		     if \code{"y.avg"} is selected, then bins merging will be performed forward based on increasing order of
 #' 		     mean of target variable per modality.
+#'@return The command \code{sc.merge} generates a list of two objects. The first object, data frame \code{summary.tbl}
+#' presents a summary table of final binning, while \code{x.trans} is a vector of recoded values. 
 #'@examples
 #'library(monobin)
 #'library(LGDtoolkit)
