@@ -32,8 +32,9 @@ library(LGDtoolkit)
 ```
 
 If the packages are not already installed, run the following code before
-the library import </br> `install.packages(c("monobin", "PDtoolkit"))`
-in order to install these two packages from the CRAN, while
+the library import </br>
+`install.packages(c("monobin", "PDtoolkit", "LGDtoolkit"))` to install
+these packages from the CRAN, while
 `devtools::install_github("andrija-djurovic/LGDtoolkit")` to install
 development version of `LGDtoolkit` package.
 
@@ -230,11 +231,12 @@ Sometimes, when building LGD models numeric risk factors are
 discretized, so we will proceed next with that step. For the purpose of
 binning the numeric risk factors, we will use one of the functions
 (`sts.bin`) from the `monobin` package. Details about this package can
-be found [here](https://CRAN.R-project.org/package=monobin).
-Usually before this step modelers split data set on training and testing and 
-perform binning (and other model development steps) only on training data set.
-For the sake of simplicity, for this case study we will skip this part but modelers
-should be aware of importance of data set splitting step.
+be found [here](https://CRAN.R-project.org/package=monobin). Usually
+before this step modelers split data set on training and testing and
+perform binning (and other model development steps) only on training
+data set. For the sake of simplicity, for this case study we will skip
+this part but modelers should be aware of importance of data set
+splitting step.
 
 ``` r
 #define target variable and exclude it from the binning process
@@ -264,8 +266,8 @@ After completing binning step, modelers usually perform bivariate
 analysis and start examination of discriminatory power of risk factors
 in relation with target variable. Probably the most common metric used
 for this purpose is coefficient determination (R squared) and it usually
-used for further risk factor filtering. In order to calculate R
-squared we will use function `r.squared` from `LGDtoolkit` package.
+used for further risk factor filtering. In order to calculate R squared
+we will use function `r.squared` from `LGDtoolkit` package.
 
 ``` r
 LGDtoolkit::r.squared(db = lgd.ds.c, target = target)
