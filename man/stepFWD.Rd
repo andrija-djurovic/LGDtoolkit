@@ -17,8 +17,8 @@ stepFWD(
 \item{start.model}{Formula class that represents starting model. It can include some risk factors, but it can be
 defined only with intercept (\code{y ~ 1} where \code{y} is target variable).}
 
-\item{p.value}{Significance level of p-value of the estimated coefficients. For \code{WoE} coding this value is
-is directly compared to the p-value of the estimated coefficients, while for \code{dummy} coding
+\item{p.value}{Significance level of p-value of the estimated coefficients. For numerical risk factors this value is
+is directly compared to the p-value of the estimated coefficients, while for categorical risk factors
 multiple Wald test is employed and its p-value is used for comparison with selected threshold (\code{p.value}).}
 
 \item{db}{Modeling data with risk factors and target variable. Risk factors can be categorized or continuous.}
