@@ -2,8 +2,8 @@
 #'
 #' \code{stepRPC} customized stepwise regression with p-value and trend check which additionally takes into account 
 #' the order of supplied risk factors per group when selects a candidate for the final regression model. Trend check is performed
-#' comparing observed trend between target and analyzed risk factor and trend of the estimated coefficients within the 
-#' OLS regression. Note that procedure checks the column names of supplied \code{db} data frame therefore some 
+#' comparing observed trend between target and analyzed risk factor and trend of the estimated coefficients. 
+#' Note that procedure checks the column names of supplied \code{db} data frame therefore some 
 #' renaming (replacement of special characters) is possible to happen. For details, please, check the help example.
 #'@param start.model Formula class that represents the starting model. It can include some risk factors, but it can be
 #'			   defined only with intercept (\code{y ~ 1} where \code{y} is target variable).
