@@ -11,8 +11,8 @@
 #'			    \code{group}. Column \code{group} defines order of groups that will be tested first as a candidate
 #'			    for the regression model. Risk factors selected in each group are kept as a starting variables
 #'			    for the next group testing. Column \code{rf} contains all candidate risk factors supplied for testing.
-#'@param p.value Significance level of p-value of the estimated coefficients. For \code{WoE} coding this value is
-#'		     is directly compared to the p-value of the estimated coefficients, while for \code{dummy} coding
+#'@param p.value Significance level of p-value of the estimated coefficients. For numerical risk factors this value is
+#'		     is directly compared to the p-value of the estimated coefficients, while for categorical risk factors
 #'		     multiple Wald test is employed and its value is used for comparison with selected threshold (\code{p.value}).
 #'@param db Modeling data with risk factors and target variable. All risk factors (apart from the risk factors from the starting model) 
 #'	    should be categorized and as of character type.
