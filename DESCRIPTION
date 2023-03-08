@@ -1,6 +1,6 @@
 Package: LGDtoolkit
 Title: Collection of Tools for LGD Rating Model Development
-Version: 0.0.9
+Version: 0.1.0
 Authors@R: 
     person(given = "Andrija",
            family = "Djurovic",
