@@ -4,7 +4,6 @@
 
 # LGDtoolkit 0.2.0
 1. internal function ```summary.tbl``` renamed as ```tbl.summary``` to avoid S3 conflict
-
-New functions:
-4. ```heterogeneity``` - validation of heterogeneity of the rating scale
-5. ```homogeneity``` - validation of homogeneity of the rating scale
+2. New functions:
+  + ```heterogeneity``` - validation of heterogeneity of the rating scale
+  + ```homogeneity``` - validation of homogeneity of the rating scale
