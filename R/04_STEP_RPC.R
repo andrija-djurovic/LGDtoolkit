@@ -157,7 +157,7 @@ stepRPC <- function(start.model, risk.profile, p.value = 0.05, db, reg.type = "o
 	if	(length(rf.c) > 0) {
 		for	(i in 1:rf.cl) {
 			rf.c.l <- rf.c[i]
-	 		cat.o <- summary.tbl(tbl = db, x = rf.c.l, y = target)
+	 		cat.o <- summ.tbl(tbl = db, x = rf.c.l, y = target)
 			cat.o$bin <- as.character(cat.o$bin)
 			cat.o <- cbind.data.frame(rf = rf.c.l, cat.o)
 			pct.check <- any(cat.o$pct.o < 0.05)
