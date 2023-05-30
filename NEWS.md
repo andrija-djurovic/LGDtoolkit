@@ -4,6 +4,5 @@
 
 # LGDtoolkit 0.2.0
 New functions:
-1. ```hetorogeneity``` - validation of heterogeneity of the rating scale
+1. ```heterogeneity``` - validation of heterogeneity of the rating scale
 2. ```homogeneity``` - validation of homogeneity of the rating scale
-
