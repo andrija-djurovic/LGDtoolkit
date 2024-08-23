@@ -1,5 +1,5 @@
 
-## LGDtoolkit 0.2.0
+## LGDtoolkit 0.2.1
 
 `LGDtoolkit` provides collection of tools for loss given default (LGD)
 rating model development and validation.</br> Keeping in mind the fact
