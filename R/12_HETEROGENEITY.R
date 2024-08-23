@@ -120,8 +120,8 @@ st.neighbors <- function(app.port, loss, pools, sts, method, alpha) {
 		t.res <- eval(parse(text = eval.exp)) 
 		p.val <- t.res$p.value
 		tr <- ifelse(p.val >= alpha, 
-				 paste0("H0: LOSS(", p1, ") ", h0, " LOSS(", p2, ")"),
-				 paste0("H1: LOSS(", p1, ") ", h1, " LOSS(", p2, ")"))
+				 paste0("H0: LOSS(", p2, ") ", h0, " LOSS(", p1, ")"),
+				 paste0("H1: LOSS(", p2, ") ", h1, " LOSS(", p1, ")"))
 		res.l <- cbind.data.frame(p2 = p2, p.val = p.val, res = tr)
 		res[[i]] <- res.l
 		}
